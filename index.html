@@ -391,14 +391,11 @@ function selectedDates(){
   return [one,two,three];
 }
 async function loadVenueDay(venueId,dateStr){
-  const controller = new AbortController();
-  const timeout = setTimeout(()=>controller.abort(), 9000);
-  let r;
-  try{
-    r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/availability?venueId=' + encodeURIComponent(venueId) + '&date=' + encodeURIComponent(dateStr)), { signal: controller.signal });
-  } finally {
-    clearTimeout(timeout);
-  }
+  const target = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/availability?venueId=' + encodeURIComponent(venueId) + '&date=' + encodeURIComponent(dateStr);
+  const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target);
+  const fetchPromise = fetch(url, { headers: { 'accept': 'application/json' } });
+  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 12000));
+  const r = await Promise.race([fetchPromise, timeoutPromise]);
   if(!r.ok) throw new Error('HTTP '+r.status);
   return r.json();
 }
