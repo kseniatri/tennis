@@ -300,6 +300,14 @@ h1{margin:0;font-size:22px;line-height:1.05}
 </div>
 <script>
 const VENUES = ${JSON.stringify(VENUES)};
+let SNAPSHOT = null;
+async function ensureSnapshot(){
+  if(SNAPSHOT) return SNAPSHOT;
+  const r = await fetch('./snapshot.json', { cache: 'no-store' });
+  if(!r.ok) throw new Error('snapshot.json HTTP ' + r.status);
+  SNAPSHOT = await r.json();
+  return SNAPSHOT;
+}
 const statusEl = document.getElementById('status');
 const rowsEl = document.getElementById('rows');
 const topgridEl = document.getElementById('topgrid');
@@ -361,8 +369,9 @@ function haversineKm(a,b){
 function walkingMins(km){ return Math.max(1, Math.round(km*12)); }
 function mapThumb(venue){
   const lat = venue.lat, lon = venue.lon;
-  const src = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/map-thumb?lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&name='+encodeURIComponent(venue.name);
-  return '<img class="map-snapshot" data-map-thumb="1" data-map-key="'+venue.id+'" data-map-src="'+src+'" alt="'+venue.name+' map preview" loading="lazy" /><div class="map-label">Apple Maps</div><div class="map-coords">'+lat.toFixed(3)+', '+lon.toFixed(3)+'</div>';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#f8fafc"/></linearGradient></defs><rect width="400" height="260" rx="20" fill="url(#g)"/><g opacity="0.38" stroke="#94a3b8" stroke-width="3"><path d="M30 70H370M40 145H360M60 220H340M70 30V235M260 20V240M330 15V245"/></g><circle cx="320" cy="70" r="40" fill="#bbf7d0" opacity="0.55"/><circle cx="85" cy="180" r="44" fill="#e2e8f0" opacity="0.8"/><path d="M200 77c-22 0-40 18-40 40 0 31 40 77 40 77s40-46 40-77c0-22-18-40-40-40zm0 58c-10 0-18-8-18-18s8-18 18-18 18 8 18 18-8 18-18 18z" fill="#111827"/><text x="18" y="30" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="800" fill="#64748b">Street map</text><rect x="16" y="222" rx="18" ry="18" width="160" height="30" fill="#fff" opacity="0.92"/><text x="34" y="243" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="800" fill="#64748b">${lat.toFixed(3)}, ${lon.toFixed(3)}</text></svg>`;
+  const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  return '<img class="map-snapshot" data-map-thumb="1" data-map-key="'+venue.id+'" src="'+src+'" alt="'+venue.name+' map preview" loading="lazy" /><div class="map-label">Street map</div><div class="map-coords">'+lat.toFixed(3)+', '+lon.toFixed(3)+'</div>';
 }
 function googleDirectionsLink(venue){
   if(!userLocation) return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(venue.name);
@@ -391,13 +400,10 @@ function selectedDates(){
   return [one,two,three];
 }
 async function loadVenueDay(venueId,dateStr){
-  const target = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/availability?venueId=' + encodeURIComponent(venueId) + '&date=' + encodeURIComponent(dateStr);
-  const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target);
-  const fetchPromise = fetch(url, { headers: { 'accept': 'application/json' } });
-  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 12000));
-  const r = await Promise.race([fetchPromise, timeoutPromise]);
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  return r.json();
+  const snap = await ensureSnapshot();
+  const data = snap.snapshot?.[venueId]?.[dateStr];
+  if(!data) throw new Error('No snapshot');
+  return data;
 }
 function normalizeVenue(p){
   return (p?.venueDetails||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(c=>({
@@ -460,7 +466,7 @@ function rerenderWithLoading(){
 async function refresh(){
   setLoading(true);
   errorEl.classList.add('hidden');
-  statusEl.textContent='Loading live data…';
+  statusEl.textContent='Loading snapshot…';
   const days = selectedDates();
   topgridEl.innerHTML='<div></div>'+days.map((d,i)=>'<div class="'+((d.getDay()===0||d.getDay()===6)?'weekend-head':'')+'"><div class="day">'+(i===0?'Today':i===1?'Tomorrow':'Day after tomorrow')+'</div><div class="date">'+fmtHeader(d)+'</div></div>').join('');
   try{
@@ -477,7 +483,7 @@ async function refresh(){
     }
     cache = state;
     render(days);
-    if(results.some(r=>r.status !== 'fulfilled')) statusEl.textContent='Loaded with some slow venue responses';
+    if(results.some(r=>r.status !== 'fulfilled')) statusEl.textContent='Loaded with some unavailable snapshot data';
   }catch(e){ showError(e); }
   finally {
     setLoading(false);
@@ -529,7 +535,7 @@ function render(days){
   }
   rowsEl.innerHTML = html || '<div class="loading">'+(loading?'Loading live data…':'No venues found')+'</div>';
   summaryEl.textContent = 'Loaded '+VENUES.length+' Merton venues. Showing courts with matching slots only.';
-  statusEl.textContent = 'Loaded '+VENUES.length+' venues';
+  statusEl.textContent = 'Loaded '+VENUES.length+' venues from snapshot';
   todayBtn.textContent = fmtHeader(days[0]);
   tomorrowBtn.textContent = fmtHeader(days[1]);
   dayAfterBtn.textContent = fmtHeader(days[2]);
@@ -543,7 +549,7 @@ function render(days){
 function showError(e){
   errorEl.textContent='Could not load live data: '+e.message;
   errorEl.classList.remove('hidden');
-  statusEl.textContent='Live data unavailable';
+  statusEl.textContent='Data unavailable';
 }
 todayBtn.onclick=()=>{activeDate=new Date();activeDate.setHours(0,0,0,0);refresh()};
 tomorrowBtn.onclick=()=>{activeDate=new Date();activeDate.setHours(0,0,0,0);activeDate.setDate(activeDate.getDate()+1);refresh()};
@@ -570,29 +576,7 @@ function updateSliderFill(){
   timeFill.style.left = leftPx + 'px';
   timeFill.style.width = Math.max(0, rightPx - leftPx) + 'px';
 }
-function hydrateMapThumbs(root=document){
-  const thumbs = root.querySelectorAll?.('img[data-map-thumb="1"]') || [];
-  thumbs.forEach(img=>{
-    const key = img.dataset.mapKey;
-    const src = img.dataset.mapSrc;
-    if(!key || !src) return;
-    if(mapThumbCache.has(key)){
-      img.src = mapThumbCache.get(key);
-      return;
-    }
-    if(img.dataset.mapLoading === '1') return;
-    img.dataset.mapLoading = '1';
-    fetch(src)
-      .then(r=>r.blob())
-      .then(blob=>{
-        const objectUrl = URL.createObjectURL(blob);
-        mapThumbCache.set(key, objectUrl);
-        img.src = objectUrl;
-      })
-      .catch(()=>{ img.src = src; })
-      .finally(()=>{ delete img.dataset.mapLoading; });
-  });
-}
+function hydrateMapThumbs(root=document){}
 let sliderDebounce = 0;
 function scheduleFilterRender(){
   clearTimeout(sliderDebounce);
