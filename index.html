@@ -1,139 +1,720 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>London Tennis Live</title>
-  <style>
-    :root{--bg:#faf7f2;--line:#d9d1c4;--ink:#111827;--muted:#6b7280;--green:#dcfce7;--green-ink:#166534;--red:#fee2e2;--red-ink:#991b1b;--gray:#eef2f7;--gray-ink:#475569;--blue:#dbeafe;--blue-ink:#1d4ed8;--weekend:#ffe4e6;--weekend-ink:#9f1239}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#fff,var(--bg));color:var(--ink)}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    h1{margin:0;font-size:26px}
-    .sub{margin:8px 0 14px;color:var(--muted);line-height:1.45}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-    .btn,.chip{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap}
-    .btn{cursor:pointer}
-    .btn.active{background:#111827;color:#fff;border-color:#111827}
-    .chip.free{background:var(--green);color:var(--green-ink);border-color:#c7efd1;cursor:pointer}
-    .chip.busy{background:var(--red);color:var(--red-ink);border-color:#f3c1c1;cursor:pointer}
-    .chip.gray{background:var(--gray);color:var(--gray-ink);border-color:#dde4ec}
-    .chip.more{background:var(--blue);color:var(--blue-ink);border-color:#c8dbff}
-    .chip.weekend{background:var(--weekend);color:var(--weekend-ink);border-color:#f8c8d2}
-    .legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
-    .status{margin-left:auto;color:var(--muted);font-size:12px}
-    .panel{background:#fff;border:1px solid rgba(217,209,196,.8);border-radius:18px;box-shadow:0 14px 34px rgba(17,24,39,.08);overflow:hidden}
-    .court-switcher{display:flex;gap:8px;flex-wrap:wrap;padding:14px 14px 0}
-    .live{padding:14px}
-    .live-title{font-size:18px;font-weight:800;margin-bottom:8px}
-    .meta{font-size:12px;color:var(--muted);margin-bottom:10px}
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .court-pill{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#f8fafc;font-size:12px;font-weight:700;margin:4px 6px 0 0}
-    .book{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;background:#111827;color:#fff;text-decoration:none;font-weight:800;font-size:13px;margin-top:12px}
-    .error{padding:14px 16px;color:#991b1b;background:#fef2f2;border-top:1px solid #fecaca}
-    .hidden{display:none!important}
-    .week{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-    .week > div{padding:10px 8px;border-right:1px solid var(--line)}
-    .week > div:last-child{border-right:0}
-    .day{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-    .date{font-size:14px;font-weight:800;margin-top:2px}
-    .weekend-head{background:var(--weekend)}
-    .weekend-head .day,.weekend-head .date{color:var(--weekend-ink)}
-    @media (max-width: 900px){ .week{display:none} }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Merton Tennis Live</title>
+<style>
+:root{--bg:#f7f4ee;--line:#d9d1c4;--ink:#111827;--muted:#6b7280;--green:#dcfce7;--green-ink:#166534;--red:#fee2e2;--red-ink:#991b1b;--gray:#eef2f7;--gray-ink:#475569;--blue:#dbeafe;--blue-ink:#1d4ed8;--weekend:#ffe4e6;--weekend-ink:#9f1239}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#fff,var(--bg));color:var(--ink)}
+.wrap{max-width:860px;margin:0 auto;padding:12px}
+h1{margin:0;font-size:22px;line-height:1.05}
+.sub{margin:6px 0 10px;color:var(--muted);line-height:1.35;max-width:760px;font-size:13px}
+.controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.btn,.chip,.seg{border:1px solid var(--line);border-radius:999px;background:#fff;padding:6px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+.btn{cursor:pointer}
+.btn.active{background:#111827;color:#fff;border-color:#111827}
+.seg.active{background:#111827;color:#fff;border-color:#111827}
+.chip.free{background:var(--green);color:var(--green-ink);border-color:#c7efd1}
+.chip.busy{background:var(--red);color:var(--red-ink);border-color:#f3c1c1}
+.chip.gray{background:var(--gray);color:var(--gray-ink);border-color:#dde4ec}
+.chip.more{background:var(--blue);color:var(--blue-ink);border-color:#c8dbff}
+.chip.weekend{background:var(--weekend);color:var(--weekend-ink);border-color:#f8c8d2}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+.status{margin-left:auto;color:var(--muted);font-size:12px}
+.panel{background:#fff;border:1px solid rgba(217,209,196,.8);border-radius:18px;box-shadow:0 14px 34px rgba(17,24,39,.08);overflow:hidden}
+.panel.loading{position:relative;min-height:180px}
+.panel.loading::after{
+  content:"Loading live data…";
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.88);
+  color:var(--muted);
+  font-size:14px;font-weight:700;
+  z-index:20;
+}
+.topgrid{display:grid;grid-template-columns:220px repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.topgrid>div{padding:10px 8px}
+.topgrid::after{
+  content:"";
+  position:absolute;
+  inset:0 0 0 220px;
+  pointer-events:none;
+  background:
+    linear-gradient(to right, transparent calc(33.333% - .5px), var(--line) calc(33.333% - .5px), var(--line) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to right, transparent calc(66.666% - .5px), var(--line) calc(66.666% - .5px), var(--line) calc(66.666% + .5px), transparent calc(66.666% + .5px));
+}
+.day{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.date{font-size:14px;font-weight:900;margin-top:2px}
+.weekend-head{background:var(--weekend)}
+.weekend-head .day,.weekend-head .date{color:var(--weekend-ink)}
+.borough-title{padding:14px 16px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#c26b2e;background:#fff7ef;border-bottom:1px solid #f2e2cf}
+.venue{display:grid;grid-template-columns:220px repeat(3,minmax(0,1fr));border-top:1px solid var(--line);position:relative}
+.venue:first-of-type{border-top:0}
+.name-cell,.day-cell{padding:10px 8px}
+.name-cell{border-right:1px solid var(--line)}
+.venue::after{
+  content:"";
+  position:absolute;
+  inset:0 0 0 220px;
+  pointer-events:none;
+  background:
+    linear-gradient(to right, transparent calc(33.333% - .5px), var(--line) calc(33.333% - .5px), var(--line) calc(33.333% + .5px), transparent calc(33.333% + .5px)),
+    linear-gradient(to right, transparent calc(66.666% - .5px), var(--line) calc(66.666% - .5px), var(--line) calc(66.666% + .5px), transparent calc(66.666% + .5px));
+}
+.name{font-size:15px;font-weight:900;line-height:1.15}
+.book{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;background:#111827;color:#fff;text-decoration:none;font-weight:800;font-size:12px;margin-top:8px}
+.court-block{padding:8px 0;border-bottom:1px solid rgba(217,209,196,.25)}
+.court-block:last-child{border-bottom:0}
+.court-title{font-size:12px;font-weight:900;margin-bottom:4px}
+.slot-list{display:flex;flex-wrap:wrap;gap:4px}
+.slot-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:11px;font-weight:800;text-decoration:none;color:inherit}
+.slot-chip.free{background:var(--green);color:var(--green-ink);border-color:#c7efd1}
+.slot-chip.busy{background:var(--red);color:var(--red-ink);border-color:#f3c1c1}
+.slot-chip .price{font-weight:900;opacity:.9}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.venue-filter{
+  position:relative;
+  min-width:220px;
+}
+.venue-filter-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:800;
+  color:var(--ink);
+  cursor:pointer;
+}
+.venue-filter-panel{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  width:min(360px, 92vw);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 18px 40px rgba(17,24,39,.14);
+  padding:10px;
+  z-index:30;
+  display:none;
+}
+.venue-filter.open .venue-filter-panel{display:block}
+.venue-filter-search{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:13px;
+  font-weight:700;
+  outline:none;
+  margin-bottom:10px;
+}
+.venue-filter-list{
+  display:grid;
+  gap:6px;
+  max-height:260px;
+  overflow:auto;
+}
+.venue-filter-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:700;
+  padding:6px 8px;
+  border-radius:10px;
+}
+.venue-filter-item input{width:16px;height:16px}
+.sort-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer}
+.sort-btn.active{background:#111827;color:#fff;border-color:#111827}
+.venue-meta{display:grid;gap:10px;align-items:start;margin-top:8px}
+.venue-thumb{width:100%;height:170px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#f3f4f6;cursor:pointer;position:relative}
+.map-snapshot{width:100%;height:100%;object-fit:cover;display:block}
+.map-pin{position:absolute;left:50%;top:50%;width:18px;height:28px;transform:translate(-50%,-74%);background:#111827;border-radius:50% 50% 50% 0;rotate:-45deg;box-shadow:0 6px 12px rgba(17,24,39,.22)}
+.map-pin::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;transform:translate(-50%,-50%) rotate(45deg);background:#fff;border-radius:50%}
+.map-label,.map-coords{position:absolute;left:8px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.84);backdrop-filter:blur(6px);font-size:9px;font-weight:800;color:#64748b}
+.map-label{top:8px}
+.map-coords{bottom:8px}
+.venue-distance{font-size:10px;color:var(--muted);font-weight:700;margin-top:3px;line-height:1.2}
+.venue-coords{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.2}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.table-head .summary{padding:0;border:0}
+.table-sort{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.table-sort-label{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.range-wrap{display:flex;flex-direction:column;gap:2px;width:320px;max-width:320px;flex:none;margin-left:auto;padding-top:8px}
+.range-slider{
+  position:relative;
+  height:36px;
+  border-radius:999px;
+  background:transparent;
+  border:0;
+  padding:0;
+  touch-action:none;
+}
+.range-track{
+  position:absolute;
+  left:0; right:0;
+  top:50%;
+  height:3px;
+  transform:translateY(-50%);
+  background:#e5e7eb;
+  border-radius:999px;
+}
+.range-fill{
+  position:absolute;
+  top:50%;
+  height:3px;
+  transform:translateY(-50%);
+  background:#111827;
+  border-radius:999px;
+}
+.range-thumb{
+  position:absolute;
+  top:50%;
+  width:22px;
+  height:22px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:#111827;
+  border:2px solid #fff;
+  box-shadow:0 2px 6px rgba(17,24,39,.18);
+  cursor:grab;
+  z-index:5;
+  touch-action:none;
+}
+.range-thumb.active{box-shadow:0 0 0 4px rgba(17,24,39,.12), 0 2px 8px rgba(17,24,39,.22)}
+.range-slider.dragging{cursor:grabbing}
+.range-label{font-size:12px;color:var(--muted);min-width:120px}
+.range-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:0 2px 0;margin-top:2px;line-height:1}
+.controls.loading,.filters.loading{opacity:.55;pointer-events:none}
+.day-btns.loading{opacity:.6;pointer-events:none}
+.error{padding:14px 16px;color:#991b1b;background:#fef2f2;border-top:1px solid #fecaca}
+.hidden{display:none!important}
+.loading{padding:18px;color:var(--muted)}
+.summary{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.35}
+.mobile-note{display:none;padding:12px 16px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(17,24,39,.46);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-backdrop.open{display:flex}
+.modal{width:min(760px,100%);background:#fff;border-radius:20px;border:1px solid rgba(217,209,196,.9);box-shadow:0 30px 80px rgba(17,24,39,.28);overflow:hidden}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.modal-title{font-size:15px;font-weight:900}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-body{display:grid;grid-template-columns:220px 1fr;gap:14px;padding:14px 16px}
+.modal-map{width:220px;height:220px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#f3f4f6}
+.modal-map img{display:block;width:100%;height:100%;object-fit:cover}
+.modal-route{display:grid;gap:10px;font-size:12px;line-height:1.45;color:var(--ink)}
+.route-box{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fafafa}
+.route-actions{display:flex;gap:8px;flex-wrap:wrap}
+.route-link{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:11px;font-weight:800;background:#fff}
+.route-link.primary{background:#111827;border-color:#111827;color:#fff}
+@media (min-width: 901px){
+  .day-btns{display:none}
+}
+@media (max-width: 900px){
+  .topgrid,.venue{grid-template-columns:1fr}
+  .topgrid{display:none}
+  .name-cell{border-right:0;border-bottom:1px solid var(--line)}
+  .day-cell{border-right:0;border-bottom:1px solid rgba(217,209,196,.3)}
+  .mobile-note{display:block}
+}
+</style>
 </head>
 <body>
 <div class="wrap">
-  <h1>London Tennis Live</h1>
-  <div class="sub">Public live slots from LTA. Tap a time chip to see which courts are free and open the venue page to book.</div>
-  <div class="controls">
+  <h1>Merton tennis live slots</h1>
+  <div class="sub">Dates across the top, courts hidden when empty, and filters for time and price.</div>
+  <div class="controls day-btns">
     <button class="btn active" id="todayBtn">Today</button>
     <button class="btn" id="tomorrowBtn">Tomorrow</button>
+    <button class="btn" id="dayAfterBtn">Day after tomorrow</button>
     <div class="status" id="status">Loading live data…</div>
   </div>
-  <div class="legend">
-    <span class="chip free">Free slot</span>
-    <span class="chip busy">Booked slot</span>
-    <span class="chip gray">No data / unavailable</span>
-    <span class="chip more">+ hidden</span>
-    <span class="chip weekend">Weekend</span>
+  <div class="filters">
+    <div class="venue-filter" id="venueFilter">
+      <button class="venue-filter-toggle" id="venueFilterToggle" type="button">
+        <span id="venueFilterLabel">All venues</span>
+        <span>▾</span>
+      </button>
+      <div class="venue-filter-panel" id="venueFilterPanel">
+        <input class="venue-filter-search" id="venueFilterSearch" type="search" placeholder="Search venue..." autocomplete="off" />
+        <div class="venue-filter-list" id="venueFilterList"></div>
+      </div>
+    </div>
+    <button class="seg active" data-price="all">All</button>
+    <button class="seg" data-price="free">Only free</button>
+    <button class="seg" data-price="paid">Only paid</button>
+    <div class="range-wrap">
+      <div class="range-label" id="rangeLabel">Time: 08:00 - 22:00</div>
+      <div class="range-slider" id="timeSlider">
+        <div class="range-track"></div>
+        <div class="range-fill" id="timeFill"></div>
+        <div class="range-thumb" id="timeMinThumb" role="slider" tabindex="0" aria-label="Start time"></div>
+        <div class="range-thumb" id="timeMaxThumb" role="slider" tabindex="0" aria-label="End time"></div>
+      </div>
+      <div class="range-scale"><span>start</span><span>middle</span><span>end</span></div>
+    </div>
   </div>
   <div class="panel">
-    <div class="court-switcher" id="courtTabs"></div>
-    <div class="live" id="live"></div>
-    <div class="week" id="week"></div>
+    <div class="table-head">
+      <div class="summary" id="summary"></div>
+      <div class="table-sort">
+        <span class="table-sort-label">Sort</span>
+        <button class="sort-btn active" id="sortBtn" type="button">↕ Nearest</button>
+      </div>
+    </div>
+    <div class="topgrid" id="topgrid"></div>
+    <div id="rows"><div class="loading">Loading Merton venues…</div></div>
     <div class="error hidden" id="error"></div>
+    <div class="mobile-note">On mobile, the three-day columns stack under each venue.</div>
+  </div>
+</div>
+<div class="modal-backdrop" id="routeModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="routeTitle">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="routeTitle">Route preview</div>
+        <div class="modal-sub" id="routeSub"></div>
+      </div>
+      <button class="btn" id="routeClose" type="button">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-map"><img id="routeMap" alt="Route preview map" /></div>
+      <div class="modal-route">
+        <div class="route-box" id="routeSummary"></div>
+        <div class="route-box" id="routeDetails"></div>
+        <div class="route-actions">
+          <a class="route-link primary" id="routeGoogle" target="_blank" rel="noopener">Open Google Maps</a>
+          <a class="route-link" id="routeOsm" target="_blank" rel="noopener">Open OSM</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
-const venueId = '4897b0fe-6476-4161-b614-db911cfdc28b';
-const venuePage = 'https://www.lta.org.uk/book/courts/nursery-road-playing-fields_4897b0fe-6476-4161-b614-db911cfdc28b/';
-const apiBase = 'https://api.allorigins.win/raw?url=';
+const VENUES = ${JSON.stringify(VENUES)};
 const statusEl = document.getElementById('status');
-const courtTabs = document.getElementById('courtTabs');
-const live = document.getElementById('live');
-const week = document.getElementById('week');
+const rowsEl = document.getElementById('rows');
+const topgridEl = document.getElementById('topgrid');
 const errorEl = document.getElementById('error');
+const summaryEl = document.getElementById('summary');
 const todayBtn = document.getElementById('todayBtn');
 const tomorrowBtn = document.getElementById('tomorrowBtn');
-let activeDate = new Date(); activeDate.setHours(0,0,0,0);
-let payload = null; let activeCourtIndex = 0;
-function fmtDate(d){ return d.toISOString().slice(0,10); }
-function fmtHeader(d){ return d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' }); }
-function timeLabel(iso){ return new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false }); }
-async function load(dateStr){
-  const target = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/availability?date=' + encodeURIComponent(dateStr) + '&venueId=' + encodeURIComponent(venueId);
-  const r = await fetch(apiBase + encodeURIComponent(target), { headers: { 'accept': 'application/json' } });
-  if(!r.ok) throw new Error('HTTP ' + r.status);
+const dayAfterBtn = document.getElementById('dayAfterBtn');
+const venueFilter = document.getElementById('venueFilter');
+const venueFilterToggle = document.getElementById('venueFilterToggle');
+const venueFilterPanel = document.getElementById('venueFilterPanel');
+const venueFilterSearch = document.getElementById('venueFilterSearch');
+const venueFilterList = document.getElementById('venueFilterList');
+const venueFilterLabel = document.getElementById('venueFilterLabel');
+const sortBtn = document.getElementById('sortBtn');
+const routeModal = document.getElementById('routeModal');
+const routeClose = document.getElementById('routeClose');
+const routeTitle = document.getElementById('routeTitle');
+const routeSub = document.getElementById('routeSub');
+const routeMap = document.getElementById('routeMap');
+const routeSummary = document.getElementById('routeSummary');
+const routeDetails = document.getElementById('routeDetails');
+const routeGoogle = document.getElementById('routeGoogle');
+const routeOsm = document.getElementById('routeOsm');
+const timeMinThumb = document.getElementById('timeMinThumb');
+const timeMaxThumb = document.getElementById('timeMaxThumb');
+const rangeLabel = document.getElementById('rangeLabel');
+const timeFill = document.getElementById('timeFill');
+const priceButtons = [...document.querySelectorAll('[data-price]')];
+let activeDate = new Date();
+activeDate.setHours(0,0,0,0);
+let state = {};
+let activeVenueIds = null;
+let activePrice = 'all';
+let sortMode = 'distance';
+let userLocation = JSON.parse(localStorage.getItem('mertonUserLocation') || 'null');
+let cache = {};
+let minHour = 8;
+let maxHour = 22;
+let loading = true;
+let renderToken = 0;
+let activeThumb = null;
+let dragThumb = null;
+const mapThumbCache = new Map();
+function fmtDate(d){return d.toISOString().slice(0,10)}
+function fmtHeader(d){return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+function timeLabel(iso){return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function money(n){return Number(n||0)===0 ? 'Free' : '£'+Number(n).toFixed(2).replace(/\\.00$/,'')}
+function venueById(id){return VENUES.find(v=>v.id===id)}
+function haversineKm(a,b){
+  const R=6371;
+  const dLat=(b.lat-a.lat)*Math.PI/180;
+  const dLon=(b.lon-a.lon)*Math.PI/180;
+  const lat1=a.lat*Math.PI/180;
+  const lat2=b.lat*Math.PI/180;
+  const s=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function walkingMins(km){ return Math.max(1, Math.round(km*12)); }
+function mapThumb(venue){
+  const lat = venue.lat, lon = venue.lon;
+  const src = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/map-thumb?lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon)+'&name='+encodeURIComponent(venue.name);
+  return '<img class="map-snapshot" data-map-thumb="1" data-map-key="'+venue.id+'" data-map-src="'+src+'" alt="'+venue.name+' map preview" loading="lazy" /><div class="map-label">Apple Maps</div><div class="map-coords">'+lat.toFixed(3)+', '+lon.toFixed(3)+'</div>';
+}
+function googleDirectionsLink(venue){
+  if(!userLocation) return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(venue.name);
+  return 'https://www.google.com/maps/dir/?api=1&origin='+userLocation.lat+','+userLocation.lon+'&destination='+venue.lat+','+venue.lon+'&travelmode=walking';
+}
+function osmDirectionsLink(venue){
+  if(!userLocation) return 'https://www.openstreetmap.org/search?query='+encodeURIComponent(venue.name);
+  return 'https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route='+userLocation.lon+'%2C'+userLocation.lat+'%3B'+venue.lon+'%2C'+venue.lat;
+}
+function openRouteModal(venue, distKm, walk){
+  routeTitle.textContent = venue.name;
+  routeSub.textContent = venue.borough + ' · ' + venue.lat.toFixed(4) + ', ' + venue.lon.toFixed(4);
+  routeMap.src = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/map-thumb?lat='+encodeURIComponent(venue.lat)+'&lon='+encodeURIComponent(venue.lon)+'&name='+encodeURIComponent(venue.name);
+  routeMap.onerror = ()=>{ routeMap.src = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/map-thumb?lat='+encodeURIComponent(venue.lat)+'&lon='+encodeURIComponent(venue.lon)+'&name='+encodeURIComponent(venue.name); };
+  routeSummary.textContent = userLocation ? (walk + ' min walk · ' + distKm.toFixed(1) + ' km away') : 'Enable location to estimate walking route.';
+  routeDetails.textContent = userLocation ? 'This is a pre-walk preview using straight-line distance as a baseline. Open the maps link for step-by-step directions.' : 'Click “Use my location” to sort by proximity and get a route estimate.';
+  routeGoogle.href = googleDirectionsLink(venue);
+  routeOsm.href = osmDirectionsLink(venue);
+  routeModal.classList.add('open');
+}
+function closeRouteModal(){ routeModal.classList.remove('open'); }
+function selectedDates(){
+  const one = new Date(activeDate);
+  const two = new Date(activeDate); two.setDate(two.getDate()+1);
+  const three = new Date(activeDate); three.setDate(three.getDate()+2);
+  return [one,two,three];
+}
+async function loadVenueDay(venueId,dateStr){
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(), 9000);
+  let r;
+  try{
+    r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://london-tennis-live-2.sunnyzlo.chatgpt.site/api/availability?venueId=' + encodeURIComponent(venueId) + '&date=' + encodeURIComponent(dateStr)), { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+  if(!r.ok) throw new Error('HTTP '+r.status);
   return r.json();
 }
-function normalize(p){
-  return (p?.venueDetails || []).slice().sort((a,b) => (a.order || 0) - (b.order || 0)).map(c => ({
-    id: c.id,
-    name: c.name,
-    type: c.type,
-    surface: c.surface,
-    slots: (c.availableSlots || []).slice().sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
-  }));
+function normalizeVenue(p){
+  return (p?.venueDetails||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(c=>({
+    id:c.id,name:c.name,type:c.type,surface:c.surface,
+    slots:(c.availableSlots||[]).slice().sort((a,b)=>new Date(a.startTime)-new Date(b.startTime))
+  })).filter(c=>c.slots.length);
 }
-function render(){
-  const courts = normalize(payload);
-  courtTabs.innerHTML = courts.map((c,i) => '<button class="btn ' + (i===activeCourtIndex?'active':'') + '" data-i="' + i + '">' + c.name + '</button>').join('');
-  courtTabs.querySelectorAll('[data-i]').forEach(btn => btn.onclick = () => { activeCourtIndex = Number(btn.dataset.i); render(); });
-  const court = courts[activeCourtIndex];
-  const slots = court?.slots || [];
-  live.innerHTML = '<div class="live-title">' + (court?.name || 'Court') + '</div><div class="meta">' + (court?.type || '') + ' · ' + (court?.surface || '') + ' court · ' + fmtHeader(activeDate) + '</div>';
-  const chips = (slots.length
-    ? slots.slice(0,10).map(s => '<button class="chip ' + (Number(s.price || 0) === 0 ? "free" : "busy") + '" data-start="' + s.startTime + '" data-end="' + s.endTime + '">' + timeLabel(s.startTime) + ' - ' + timeLabel(s.endTime) + '</button>').join('')
-    : '<span class="chip gray">No data</span>') + (slots.length > 10 ? '<span class="chip more">+' + (slots.length-10) + '</span>' : '');
-  live.insertAdjacentHTML('beforeend', '<div class="chips">' + chips + '</div><a class="book" href="' + venuePage + '" target="_blank" rel="noopener">Open venue page</a>');
-  live.querySelectorAll('button[data-start]').forEach(btn => btn.onclick = () => {
-    const start = btn.dataset.start;
-    const end = btn.dataset.end;
-    const free = courts.filter(c => c.slots.some(s => s.startTime === start)).map(c => c.name);
-    live.innerHTML = '<div class="live-title">' + timeLabel(start) + ' - ' + timeLabel(end) + '</div><div class="meta">' + free.length + ' court(s) free</div><div>' + (free.length ? free.map(n => '<span class="court-pill">' + n + '</span>').join('') : '<span class="court-pill">No free courts</span>') + '</div><a class="book" href="' + venuePage + '" target="_blank" rel="noopener">Open venue page</a>';
+function slotVisible(slot){
+  const hour = new Date(slot.startTime).getHours();
+  if(hour < minHour) return false;
+  if(hour > maxHour) return false;
+  const p = Number(slot.price||0);
+  if(activePrice==='free' && p!==0) return false;
+  if(activePrice==='paid' && p===0) return false;
+  return true;
+}
+function applyFilters(slots){
+  return slots.filter(slotVisible);
+}
+function startOfToday(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+function refreshPriceButtons(){
+  priceButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.price===activePrice));
+}
+function refreshVenueFilterLabel(){
+  const total = VENUES.length;
+  const active = activeVenueIds ? activeVenueIds.size : total;
+  venueFilterLabel.textContent = !activeVenueIds || active === total ? 'All venues' : active + ' of ' + total + ' venues';
+}
+function refreshSortButtons(){
+  sortBtn.classList.toggle('active', sortMode==='distance');
+  sortBtn.innerHTML = sortMode==='distance' ? '↕ Nearest' : 'A-Z';
+}
+function refreshVenueFilterChecks(){
+  venueFilterList.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.checked = !!activeVenueIds && activeVenueIds.has(cb.value);
   });
-  const dates = [0,1,2,3,4,5,6].map(n => { const d = new Date(activeDate); d.setDate(d.getDate() + n); return d; });
-  week.innerHTML = dates.map((d,i) => '<div class="' + ((d.getDay()===0 || d.getDay()===6) ? 'weekend-head' : '') + '"><div class="day">' + (i===0 ? 'Today' : i===1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday:'short' })) + '</div><div class="date">' + fmtHeader(d) + '</div></div>').join('');
-  statusEl.textContent = 'Loaded ' + courts.length + ' court(s) · ' + fmtDate(activeDate);
-  todayBtn.textContent = 'Today ' + fmtHeader(activeDate);
-  const tom = new Date(activeDate); tom.setDate(tom.getDate() + 1);
-  tomorrowBtn.textContent = 'Tomorrow ' + fmtHeader(tom);
+  refreshVenueFilterLabel();
+}
+function setLoading(isLoading){
+  loading = isLoading;
+  document.querySelector('.panel')?.classList.toggle('loading', isLoading);
+  document.querySelector('.controls')?.classList.toggle('loading', isLoading);
+  document.querySelector('.filters')?.classList.toggle('loading', isLoading);
+  document.querySelector('.day-btns')?.classList.toggle('loading', isLoading);
+  [todayBtn,tomorrowBtn,dayAfterBtn,...priceButtons].forEach(el=>{ if(el) el.disabled = isLoading; });
+}
+function rerenderWithLoading(){
+  const token = ++renderToken;
+  setLoading(true);
+  requestAnimationFrame(()=>{
+    if(token !== renderToken) return;
+    render(selectedDates());
+    if(token === renderToken) setLoading(false);
+  });
 }
 async function refresh(){
+  setLoading(true);
   errorEl.classList.add('hidden');
-  statusEl.textContent = 'Loading live data…';
+  statusEl.textContent='Loading live data…';
+  const days = selectedDates();
+  topgridEl.innerHTML='<div></div>'+days.map((d,i)=>'<div class="'+((d.getDay()===0||d.getDay()===6)?'weekend-head':'')+'"><div class="day">'+(i===0?'Today':i===1?'Tomorrow':'Day after tomorrow')+'</div><div class="date">'+fmtHeader(d)+'</div></div>').join('');
   try{
-    payload = await load(fmtDate(activeDate));
-    render();
-  }catch(e){
-    errorEl.textContent = 'Could not load live data: ' + e.message;
-    errorEl.classList.remove('hidden');
-    statusEl.textContent = 'Live data unavailable';
+    const dateKeys = days.map(fmtDate);
+    const results = await Promise.allSettled(VENUES.flatMap(v=>dateKeys.map(dateStr=>
+      loadVenueDay(v.id,dateStr).then(data=>({venue:v,dateStr,data:normalizeVenue(data)}))
+    )));
+    state = {};
+    for(const settled of results){
+      if(settled.status !== 'fulfilled') continue;
+      const r = settled.value;
+      state[r.venue.id] ??= {};
+      state[r.venue.id][r.dateStr] = r;
+    }
+    cache = state;
+    render(days);
+    if(results.some(r=>r.status !== 'fulfilled')) statusEl.textContent='Loaded with some slow venue responses';
+  }catch(e){ showError(e); }
+  finally {
+    setLoading(false);
   }
 }
-todayBtn.onclick = () => { activeDate = new Date(); activeDate.setHours(0,0,0,0); refresh(); };
-tomorrowBtn.onclick = () => { activeDate = new Date(); activeDate.setHours(0,0,0,0); activeDate.setDate(activeDate.getDate()+1); refresh(); };
+function render(days){
+  const grouped = VENUES.reduce((acc,v)=>((acc[v.borough]??=[]).push(v),acc),{});
+  let html = '';
+  for(const borough of Object.keys(grouped)){
+    const boroughVenues = grouped[borough].slice().sort((a,b)=>{
+      if(sortMode==='alpha' || !userLocation) return a.name.localeCompare(b.name);
+      const da = haversineKm(userLocation, a);
+      const db = haversineKm(userLocation, b);
+      return da - db || a.name.localeCompare(b.name);
+    });
+    const boroughHtml = boroughVenues.map(venue=>{
+      if(activeVenueIds && !activeVenueIds.has(venue.id)) return null;
+      let venueHasContent = false;
+      const distKm = userLocation && venue.lat && venue.lon ? haversineKm(userLocation, venue) : null;
+      const walk = distKm == null ? null : walkingMins(distKm);
+      const dateCells = days.map(d=>{
+        const key = fmtDate(d);
+        const entry = cache[venue.id]?.[key];
+        if(!entry || entry.error) return '';
+        const courts = (entry.data||[]).map(c=>({
+          ...c,
+          slots: applyFilters(c.slots||[])
+        })).filter(c=>c.slots.length);
+        if(!courts.length) return '';
+        venueHasContent = true;
+        return '<div class="day-cell">'+courts.map(c=>{
+          const chips = c.slots.slice(0,10).map(s=>{
+            const price = money(s.price);
+            const cls = Number(s.price||0)===0 ? 'free' : 'busy';
+            const slotUrl = s.slotId || venue.page;
+            return '<a class="slot-chip '+cls+'" href="'+slotUrl+'" target="_blank" rel="noopener"><span>'+timeLabel(s.startTime)+' - '+timeLabel(s.endTime)+'</span><span class="price">'+price+'</span></a>';
+          }).join('');
+          const more = c.slots.length>10 ? '<span class="chip more">+'+(c.slots.length-10)+'</span>' : '';
+          return '<div class="court-block"><div class="court-title">'+(c.name||'Court ?')+'</div><div class="slot-list">'+chips+' '+more+'</div></div>';
+        }).join('')+'</div>';
+      }).join('');
+      if(!venueHasContent) return null;
+      return {
+        html: '<div class="venue"><div class="name-cell"><div class="name">'+venue.name+'</div><div class="venue-meta"><div class="venue-thumb" data-venue="'+venue.id+'">'+mapThumb(venue)+'</div><div><a class="book" href="'+venue.page+'" target="_blank" rel="noopener">Open venue page</a><div class="venue-distance">'+(distKm==null ? 'Location not set' : (walk + ' min walk · ' + distKm.toFixed(1) + ' km'))+'</div><div class="venue-coords">'+venue.lat.toFixed(4)+', '+venue.lon.toFixed(4)+'</div></div></div></div>'+dateCells+'</div>',
+        hasContent: venueHasContent
+      };
+    }).filter(Boolean).map(v=>v.html).join('');
+    if(boroughHtml) html += '<div class="borough"><div class="borough-title">'+borough+'</div>'+boroughHtml+'</div>';
+  }
+  rowsEl.innerHTML = html || '<div class="loading">'+(loading?'Loading live data…':'No venues found')+'</div>';
+  summaryEl.textContent = 'Loaded '+VENUES.length+' Merton venues. Showing courts with matching slots only.';
+  statusEl.textContent = 'Loaded '+VENUES.length+' venues';
+  todayBtn.textContent = fmtHeader(days[0]);
+  tomorrowBtn.textContent = fmtHeader(days[1]);
+  dayAfterBtn.textContent = fmtHeader(days[2]);
+  [todayBtn,tomorrowBtn,dayAfterBtn].forEach(btn=>btn.classList.remove('active'));
+  const dayButtons=[todayBtn,tomorrowBtn,dayAfterBtn];
+  const dayOffset = Math.round((activeDate - startOfToday())/(24*60*60*1000));
+  dayButtons[Math.max(0,Math.min(2,dayOffset))]?.classList.add('active');
+  hydrateMapThumbs(rowsEl);
+  updateSliderFill();
+}
+function showError(e){
+  errorEl.textContent='Could not load live data: '+e.message;
+  errorEl.classList.remove('hidden');
+  statusEl.textContent='Live data unavailable';
+}
+todayBtn.onclick=()=>{activeDate=new Date();activeDate.setHours(0,0,0,0);refresh()};
+tomorrowBtn.onclick=()=>{activeDate=new Date();activeDate.setHours(0,0,0,0);activeDate.setDate(activeDate.getDate()+1);refresh()};
+dayAfterBtn.onclick=()=>{activeDate=new Date();activeDate.setHours(0,0,0,0);activeDate.setDate(activeDate.getDate()+2);refresh()};
+function syncRange(){
+  if(minHour > maxHour){ const t = minHour; minHour = maxHour; maxHour = t; }
+  timeMinThumb.style.left = ((minHour-8)/(22-8))*100 + '%';
+  timeMaxThumb.style.left = ((maxHour-8)/(22-8))*100 + '%';
+  rangeLabel.textContent='Time: '+String(minHour).padStart(2,'0')+':00 - '+String(maxHour).padStart(2,'0')+':00';
+  const midHour = Math.round((minHour + maxHour) / 2);
+  const scale = document.querySelector('.range-scale');
+  if(scale) scale.innerHTML = '<span>'+String(minHour).padStart(2,'0')+':00</span><span>'+String(midHour).padStart(2,'0')+':00</span><span>'+String(maxHour).padStart(2,'0')+':00</span>';
+  updateSliderFill();
+}
+function updateSliderFill(){
+  const slider = document.getElementById('timeSlider');
+  if(!slider || !timeFill) return;
+  const left = ((minHour-8)/(22-8))*100;
+  const right = ((maxHour-8)/(22-8))*100;
+  const pad = 11;
+  const inner = slider.clientWidth - pad * 2;
+  const leftPx = pad + (left/100)*inner;
+  const rightPx = pad + (right/100)*inner;
+  timeFill.style.left = leftPx + 'px';
+  timeFill.style.width = Math.max(0, rightPx - leftPx) + 'px';
+}
+function hydrateMapThumbs(root=document){
+  const thumbs = root.querySelectorAll?.('img[data-map-thumb="1"]') || [];
+  thumbs.forEach(img=>{
+    const key = img.dataset.mapKey;
+    const src = img.dataset.mapSrc;
+    if(!key || !src) return;
+    if(mapThumbCache.has(key)){
+      img.src = mapThumbCache.get(key);
+      return;
+    }
+    if(img.dataset.mapLoading === '1') return;
+    img.dataset.mapLoading = '1';
+    fetch(src)
+      .then(r=>r.blob())
+      .then(blob=>{
+        const objectUrl = URL.createObjectURL(blob);
+        mapThumbCache.set(key, objectUrl);
+        img.src = objectUrl;
+      })
+      .catch(()=>{ img.src = src; })
+      .finally(()=>{ delete img.dataset.mapLoading; });
+  });
+}
+let sliderDebounce = 0;
+function scheduleFilterRender(){
+  clearTimeout(sliderDebounce);
+  sliderDebounce = setTimeout(()=>{
+    rerenderWithLoading();
+  }, 120);
+}
+function hourFromClientX(clientX){
+  const slider = document.getElementById('timeSlider');
+  const rect = slider.getBoundingClientRect();
+  const pad = 12;
+  const inner = rect.width - pad * 2;
+  const x = Math.min(Math.max(clientX - rect.left - pad, 0), inner);
+  return 8 + Math.round((x / inner) * (22 - 8));
+}
+function bindThumb(thumb, which){
+  const startDrag = (e)=>{
+    e.preventDefault();
+    dragThumb = which;
+    activeThumb = which;
+    thumb.classList.add('active');
+    const move = (ev)=>{
+      const hour = hourFromClientX(ev.clientX);
+      if(which==='min') minHour = Math.min(hour, maxHour);
+      else maxHour = Math.max(hour, minHour);
+      syncRange();
+      scheduleFilterRender();
+    };
+    const up = ()=>{
+      dragThumb = null;
+      activeThumb = null;
+      thumb.classList.remove('active');
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up, { once:true });
+    move(e);
+  };
+  thumb.addEventListener('pointerdown', startDrag);
+  thumb.addEventListener('keydown', (e)=>{
+    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const delta = e.key === 'ArrowRight' ? 1 : -1;
+    if(which==='min') minHour = Math.min(maxHour, Math.max(8, minHour + delta));
+    else maxHour = Math.max(minHour, Math.min(22, maxHour + delta));
+    syncRange();
+    scheduleFilterRender();
+  });
+}
+bindThumb(timeMinThumb, 'min');
+bindThumb(timeMaxThumb, 'max');
+priceButtons.forEach(btn=>btn.onclick=()=>{activePrice=btn.dataset.price;refreshPriceButtons(); scheduleFilterRender()});
+sortBtn.onclick=()=>{
+  sortMode = sortMode==='distance' ? 'alpha' : 'distance';
+  if(sortMode==='distance' && !userLocation){
+    const value = prompt('Enter your postcode or area to sort by walking distance (for example: SW19 3BT)');
+    if(value){
+      fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(value+' London UK'), { headers: { 'accept': 'application/json' }})
+        .then(r=>r.json())
+        .then(data=>{
+          if(!data?.length) throw new Error('Location not found');
+          userLocation = { lat: Number(data[0].lat), lon: Number(data[0].lon) };
+          localStorage.setItem('mertonUserLocation', JSON.stringify(userLocation));
+          refreshSortButtons();
+          scheduleFilterRender();
+        })
+        .catch(()=>alert('Could not find that location.'));
+    } else {
+      sortMode='alpha';
+    }
+  }
+  refreshSortButtons();
+  scheduleFilterRender();
+};
+venueFilterToggle.onclick=()=>{
+  venueFilter.classList.toggle('open');
+  venueFilterSearch?.focus();
+};
+document.addEventListener('click', (e)=>{
+  if(!venueFilter.contains(e.target)) venueFilter.classList.remove('open');
+});
+routeClose.onclick = closeRouteModal;
+routeModal.addEventListener('click', (e)=>{ if(e.target === routeModal) closeRouteModal(); });
+VENUES.forEach(v=>{
+  const item = document.createElement('label');
+  item.className = 'venue-filter-item';
+  item.innerHTML = '<input type="checkbox" value="' + v.id + '" /><span>' + v.name + '</span>';
+  item.querySelector('input').addEventListener('change', (e)=>{
+    const selected = new Set([...venueFilterList.querySelectorAll('input:checked')].map(cb=>cb.value));
+    activeVenueIds = selected.size ? selected : null;
+    refreshVenueFilterChecks();
+    refreshVenueFilterLabel();
+    scheduleFilterRender();
+  });
+  venueFilterList.appendChild(item);
+});
+document.addEventListener('click', (e)=>{
+  const thumb = e.target.closest?.('.venue-thumb');
+  if(!thumb) return;
+  const venue = VENUES.find(v=>v.id===thumb.dataset.venue);
+  if(!venue) return;
+  const distKm = userLocation && venue.lat && venue.lon ? haversineKm(userLocation, venue) : null;
+  const walk = distKm == null ? null : walkingMins(distKm);
+  openRouteModal(venue, distKm || 0, walk || 0);
+});
+venueFilterSearch?.addEventListener('input', ()=>{
+  const q = venueFilterSearch.value.trim().toLowerCase();
+  venueFilterList.querySelectorAll('.venue-filter-item').forEach(item=>{
+    const text = item.textContent.toLowerCase();
+    item.style.display = !q || text.includes(q) ? 'flex' : 'none';
+  });
+});
+refreshVenueFilterLabel();
+refreshSortButtons();
+refreshPriceButtons();
+syncRange();
+window.addEventListener('resize', updateSliderFill);
+window.addEventListener('load', ()=>hydrateMapThumbs(document));
 refresh();
 </script>
 </body>
