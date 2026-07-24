@@ -312,14 +312,7 @@ const VENUES = [
   { borough: 'Merton', name: 'Oakleigh Way Recreation Ground', id: 'dab72540-dbc7-4d9f-a501-2fb1f21d50e9', page: 'https://www.lta.org.uk/book/courts/oakleigh-way-recreation-ground_dab72540-dbc7-4d9f-a501-2fb1f21d50e9/', lat: 51.4179, lon: -0.2204 },
   { borough: 'Merton', name: 'Holland Garden', id: '8d0f683a-5dba-4802-ae69-ac5b87ec4e01', page: 'https://www.lta.org.uk/book/courts/holland-garden_8d0f683a-5dba-4802-ae69-ac5b87ec4e01/', lat: 51.4086, lon: -0.2351 }
 ];
-let SNAPSHOT = null;
-async function ensureSnapshot(){
-  if(SNAPSHOT) return SNAPSHOT;
-  const r = await fetch('./snapshot.json', { cache: 'no-store' });
-  if(!r.ok) throw new Error('snapshot.json HTTP ' + r.status);
-  SNAPSHOT = await r.json();
-  return SNAPSHOT;
-}
+const SNAPSHOT = {"dates":["2026-07-24","2026-07-25","2026-07-26"],"venues":[{"borough":"Merton","name":"Nursery Road Playing Fields","id":"4897b0fe-6476-4161-b614-db911cfdc28b","page":"https://www.lta.org.uk/book/courts/nursery-road-playing-fields_4897b0fe-6476-4161-b614-db911cfdc28b/","lat":51.4069,"lon":-0.2149},{"borough":"Merton","name":"Morden Park","id":"1cf80f80-682a-4982-afcc-849ddf3857b0","page":"https://www.lta.org.uk/book/courts/morden-park_1cf80f80-682a-4982-afcc-849ddf3857b0/","lat":51.3964614,"lon":-0.2003966},{"borough":"Merton","name":"John Innes Park","id":"cc72823d-34db-4d47-b552-e15305b7c2ff","page":"https://www.lta.org.uk/book/courts/john-innes-park_cc72823d-34db-4d47-b552-e15305b7c2ff/","lat":51.4092622,"lon":-0.208025},{"borough":"Merton","name":"Joseph Hood Recreation Ground","id":"4b8c9006-3628-434d-93b3-970e2ed1e7fb","page":"https://www.lta.org.uk/book/courts/joseph-hood-recreation-ground_4b8c9006-3628-434d-93b3-970e2ed1e7fb/","lat":51.3961,"lon":-0.2367},{"borough":"Merton","name":"Sir Joseph Hood Memorial Playing Fields","id":"3b1dab3c-07d9-4fe7-81d0-cc5b1f1c1cb3","page":"https://www.lta.org.uk/book/courts/sir-joseph-hood-memorial-playing-fields_3b1dab3c-07d9-4fe7-81d0-cc5b1f1c1cb3/","lat":51.3879,"lon":-0.2406},{"borough":"Merton","name":"Wimbledon Park","id":"b1a2dc34-d3b5-4b01-930e-bbd9c40b2464","page":"https://www.lta.org.uk/book/courts/wimbledon-park_b1a2dc34-d3b5-4b01-930e-bbd9c40b2464/","lat":51.4340563,"lon":-0.1990432},{"borough":"Merton","name":"Dundonald Rec Ground","id":"3ce3aed6-3c1d-4d6f-b54d-4d468d4dcb47","page":"https://www.lta.org.uk/book/courts/dundonald-rec-ground_3ce3aed6-3c1d-4d6f-b54d-4d468d4dcb47/","lat":51.4158,"lon":-0.2259},{"borough":"Merton","name":"Cottenham Park","id":"e428e707-251b-430e-b969-dca7998a2ab5","page":"https://www.lta.org.uk/book/courts/cottenham-park_e428e707-251b-430e-b969-dca7998a2ab5/","lat":51.4143002,"lon":-0.2360857},{"borough":"Merton","name":"Oakleigh Way Recreation Ground","id":"dab72540-dbc7-4d9f-a501-2fb1f21d50e9","page":"https://www.lta.org.uk/book/courts/oakleigh-way-recreation-ground_dab72540-dbc7-4d9f-a501-2fb1f21d50e9/","lat":51.4179,"lon":-0.2204},{"borough":"Merton","name":"Holland Garden","id":"8d0f683a-5dba-4802-ae69-ac5b87ec4e01","page":"https://www.lta.org.uk/book/courts/holland-garden_8d0f683a-5dba-4802-ae69-ac5b87ec4e01/","lat":51.4086,"lon":-0.2351}],"snapshot":{"4897b0fe-6476-4161-b614-db911cfdc28b":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"1cf80f80-682a-4982-afcc-849ddf3857b0":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"cc72823d-34db-4d47-b552-e15305b7c2ff":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"4b8c9006-3628-434d-93b3-970e2ed1e7fb":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"3b1dab3c-07d9-4fe7-81d0-cc5b1f1c1cb3":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"b1a2dc34-d3b5-4b01-930e-bbd9c40b2464":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"3ce3aed6-3c1d-4d6f-b54d-4d468d4dcb47":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"e428e707-251b-430e-b969-dca7998a2ab5":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"dab72540-dbc7-4d9f-a501-2fb1f21d50e9":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}},"8d0f683a-5dba-4802-ae69-ac5b87ec4e01":{"2026-07-24":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-25":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}},"2026-07-26":{"venueDetails":[],"rules":{},"error":{"hasError":true,"errorMessage":"HTTP Error 403: Forbidden"}}}}};
 const statusEl = document.getElementById('status');
 const rowsEl = document.getElementById('rows');
 const topgridEl = document.getElementById('topgrid');
@@ -411,9 +404,8 @@ function selectedDates(){
   const three = new Date(activeDate); three.setDate(three.getDate()+2);
   return [one,two,three];
 }
-async function loadVenueDay(venueId,dateStr){
-  const snap = await ensureSnapshot();
-  const data = snap.snapshot?.[venueId]?.[dateStr];
+function loadVenueDay(venueId,dateStr){
+  const data = SNAPSHOT.snapshot?.[venueId]?.[dateStr];
   if(!data) throw new Error('No snapshot');
   return data;
 }
@@ -478,7 +470,7 @@ function rerenderWithLoading(){
 async function refresh(){
   setLoading(true);
   errorEl.classList.add('hidden');
-  statusEl.textContent='Loading snapshot…';
+  statusEl.textContent='Loading data…';
   const days = selectedDates();
   topgridEl.innerHTML='<div></div>'+days.map((d,i)=>'<div class="'+((d.getDay()===0||d.getDay()===6)?'weekend-head':'')+'"><div class="day">'+(i===0?'Today':i===1?'Tomorrow':'Day after tomorrow')+'</div><div class="date">'+fmtHeader(d)+'</div></div>').join('');
   try{
@@ -547,7 +539,7 @@ function render(days){
   }
   rowsEl.innerHTML = html || '<div class="loading">'+(loading?'Loading live data…':'No venues found')+'</div>';
   summaryEl.textContent = 'Loaded '+VENUES.length+' Merton venues. Showing courts with matching slots only.';
-  statusEl.textContent = 'Loaded '+VENUES.length+' venues from snapshot';
+  statusEl.textContent = 'Loaded '+VENUES.length+' venues';
   todayBtn.textContent = fmtHeader(days[0]);
   tomorrowBtn.textContent = fmtHeader(days[1]);
   dayAfterBtn.textContent = fmtHeader(days[2]);
