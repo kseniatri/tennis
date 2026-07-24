@@ -68,6 +68,11 @@
 <script>
 const venueId = '4897b0fe-6476-4161-b614-db911cfdc28b';
 const venuePage = 'https://www.lta.org.uk/book/courts/nursery-road-playing-fields_4897b0fe-6476-4161-b614-db911cfdc28b/';
+const apiBase = 'https://london-tennis-live-2.sunnyzlo.chatgpt.site';
+const apiHeaders = {
+  'accept': 'application/json',
+  'OAI-Sites-Authorization': 'Bearer ky9tGy7MV1TsaKPPy6v7gFf0H0ID8Sntx5sW7vBcp-k'
+};
 const statusEl = document.getElementById('status');
 const courtTabs = document.getElementById('courtTabs');
 const live = document.getElementById('live');
@@ -81,7 +86,7 @@ function fmtDate(d){ return d.toISOString().slice(0,10); }
 function fmtHeader(d){ return d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' }); }
 function timeLabel(iso){ return new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false }); }
 async function load(dateStr){
-  const r = await fetch('/api/availability?date=' + encodeURIComponent(dateStr));
+  const r = await fetch(apiBase + '/api/availability?date=' + encodeURIComponent(dateStr), { headers: apiHeaders });
   if(!r.ok) throw new Error('HTTP ' + r.status);
   return r.json();
 }
