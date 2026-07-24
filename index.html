@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>London Tennis Live</title>
+  <style>
+    :root{--bg:#faf7f2;--line:#d9d1c4;--ink:#111827;--muted:#6b7280;--green:#dcfce7;--green-ink:#166534;--red:#fee2e2;--red-ink:#991b1b;--gray:#eef2f7;--gray-ink:#475569;--blue:#dbeafe;--blue-ink:#1d4ed8;--weekend:#ffe4e6;--weekend-ink:#9f1239}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(180deg,#fff,var(--bg));color:var(--ink)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    h1{margin:0;font-size:26px}
+    .sub{margin:8px 0 14px;color:var(--muted);line-height:1.45}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+    .btn,.chip{border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+    .btn{cursor:pointer}
+    .btn.active{background:#111827;color:#fff;border-color:#111827}
+    .chip.free{background:var(--green);color:var(--green-ink);border-color:#c7efd1;cursor:pointer}
+    .chip.busy{background:var(--red);color:var(--red-ink);border-color:#f3c1c1;cursor:pointer}
+    .chip.gray{background:var(--gray);color:var(--gray-ink);border-color:#dde4ec}
+    .chip.more{background:var(--blue);color:var(--blue-ink);border-color:#c8dbff}
+    .chip.weekend{background:var(--weekend);color:var(--weekend-ink);border-color:#f8c8d2}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
+    .status{margin-left:auto;color:var(--muted);font-size:12px}
+    .panel{background:#fff;border:1px solid rgba(217,209,196,.8);border-radius:18px;box-shadow:0 14px 34px rgba(17,24,39,.08);overflow:hidden}
+    .court-switcher{display:flex;gap:8px;flex-wrap:wrap;padding:14px 14px 0}
+    .live{padding:14px}
+    .live-title{font-size:18px;font-weight:800;margin-bottom:8px}
+    .meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .court-pill{display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#f8fafc;font-size:12px;font-weight:700;margin:4px 6px 0 0}
+    .book{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;background:#111827;color:#fff;text-decoration:none;font-weight:800;font-size:13px;margin-top:12px}
+    .error{padding:14px 16px;color:#991b1b;background:#fef2f2;border-top:1px solid #fecaca}
+    .hidden{display:none!important}
+    .week{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .week > div{padding:10px 8px;border-right:1px solid var(--line)}
+    .week > div:last-child{border-right:0}
+    .day{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .date{font-size:14px;font-weight:800;margin-top:2px}
+    .weekend-head{background:var(--weekend)}
+    .weekend-head .day,.weekend-head .date{color:var(--weekend-ink)}
+    @media (max-width: 900px){ .week{display:none} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>London Tennis Live</h1>
+  <div class="sub">Public live slots from LTA. Tap a time chip to see which courts are free and open the venue page to book.</div>
+  <div class="controls">
+    <button class="btn active" id="todayBtn">Today</button>
+    <button class="btn" id="tomorrowBtn">Tomorrow</button>
+    <div class="status" id="status">Loading live data…</div>
+  </div>
+  <div class="legend">
+    <span class="chip free">Free slot</span>
+    <span class="chip busy">Booked slot</span>
+    <span class="chip gray">No data / unavailable</span>
+    <span class="chip more">+ hidden</span>
+    <span class="chip weekend">Weekend</span>
+  </div>
+  <div class="panel">
+    <div class="court-switcher" id="courtTabs"></div>
+    <div class="live" id="live"></div>
+    <div class="week" id="week"></div>
+    <div class="error hidden" id="error"></div>
+  </div>
+</div>
+<script>
+const venueId = '4897b0fe-6476-4161-b614-db911cfdc28b';
+const venuePage = 'https://www.lta.org.uk/book/courts/nursery-road-playing-fields_4897b0fe-6476-4161-b614-db911cfdc28b/';
+const statusEl = document.getElementById('status');
+const courtTabs = document.getElementById('courtTabs');
+const live = document.getElementById('live');
+const week = document.getElementById('week');
+const errorEl = document.getElementById('error');
+const todayBtn = document.getElementById('todayBtn');
+const tomorrowBtn = document.getElementById('tomorrowBtn');
+let activeDate = new Date(); activeDate.setHours(0,0,0,0);
+let payload = null; let activeCourtIndex = 0;
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function fmtHeader(d){ return d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' }); }
+function timeLabel(iso){ return new Date(iso).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false }); }
+async function load(dateStr){
+  const r = await fetch('/api/availability?date=' + encodeURIComponent(dateStr));
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+function normalize(p){
+  return (p?.venueDetails || []).slice().sort((a,b) => (a.order || 0) - (b.order || 0)).map(c => ({
+    id: c.id,
+    name: c.name,
+    type: c.type,
+    surface: c.surface,
+    slots: (c.availableSlots || []).slice().sort((a,b) => new Date(a.startTime) - new Date(b.startTime))
+  }));
+}
+function render(){
+  const courts = normalize(payload);
+  courtTabs.innerHTML = courts.map((c,i) => '<button class="btn ' + (i===activeCourtIndex?'active':'') + '" data-i="' + i + '">' + c.name + '</button>').join('');
+  courtTabs.querySelectorAll('[data-i]').forEach(btn => btn.onclick = () => { activeCourtIndex = Number(btn.dataset.i); render(); });
+  const court = courts[activeCourtIndex];
+  const slots = court?.slots || [];
+  live.innerHTML = '<div class="live-title">' + (court?.name || 'Court') + '</div><div class="meta">' + (court?.type || '') + ' · ' + (court?.surface || '') + ' court · ' + fmtHeader(activeDate) + '</div>';
+  const chips = (slots.length
+    ? slots.slice(0,10).map(s => '<button class="chip ' + (Number(s.price || 0) === 0 ? "free" : "busy") + '" data-start="' + s.startTime + '" data-end="' + s.endTime + '">' + timeLabel(s.startTime) + ' - ' + timeLabel(s.endTime) + '</button>').join('')
+    : '<span class="chip gray">No data</span>') + (slots.length > 10 ? '<span class="chip more">+' + (slots.length-10) + '</span>' : '');
+  live.insertAdjacentHTML('beforeend', '<div class="chips">' + chips + '</div><a class="book" href="' + venuePage + '" target="_blank" rel="noopener">Open venue page</a>');
+  live.querySelectorAll('button[data-start]').forEach(btn => btn.onclick = () => {
+    const start = btn.dataset.start;
+    const end = btn.dataset.end;
+    const free = courts.filter(c => c.slots.some(s => s.startTime === start)).map(c => c.name);
+    live.innerHTML = '<div class="live-title">' + timeLabel(start) + ' - ' + timeLabel(end) + '</div><div class="meta">' + free.length + ' court(s) free</div><div>' + (free.length ? free.map(n => '<span class="court-pill">' + n + '</span>').join('') : '<span class="court-pill">No free courts</span>') + '</div><a class="book" href="' + venuePage + '" target="_blank" rel="noopener">Open venue page</a>';
+  });
+  const dates = [0,1,2,3,4,5,6].map(n => { const d = new Date(activeDate); d.setDate(d.getDate() + n); return d; });
+  week.innerHTML = dates.map((d,i) => '<div class="' + ((d.getDay()===0 || d.getDay()===6) ? 'weekend-head' : '') + '"><div class="day">' + (i===0 ? 'Today' : i===1 ? 'Tomorrow' : d.toLocaleDateString('en-GB', { weekday:'short' })) + '</div><div class="date">' + fmtHeader(d) + '</div></div>').join('');
+  statusEl.textContent = 'Loaded ' + courts.length + ' court(s) · ' + fmtDate(activeDate);
+  todayBtn.textContent = 'Today ' + fmtHeader(activeDate);
+  const tom = new Date(activeDate); tom.setDate(tom.getDate() + 1);
+  tomorrowBtn.textContent = 'Tomorrow ' + fmtHeader(tom);
+}
+async function refresh(){
+  errorEl.classList.add('hidden');
+  statusEl.textContent = 'Loading live data…';
+  try{
+    payload = await load(fmtDate(activeDate));
+    render();
+  }catch(e){
+    errorEl.textContent = 'Could not load live data: ' + e.message;
+    errorEl.classList.remove('hidden');
+    statusEl.textContent = 'Live data unavailable';
+  }
+}
+todayBtn.onclick = () => { activeDate = new Date(); activeDate.setHours(0,0,0,0); refresh(); };
+tomorrowBtn.onclick = () => { activeDate = new Date(); activeDate.setHours(0,0,0,0); activeDate.setDate(activeDate.getDate()+1); refresh(); };
+refresh();
+</script>
+</body>
+</html>
