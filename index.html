@@ -404,10 +404,16 @@ function selectedDates(){
   const three = new Date(activeDate); three.setDate(three.getDate()+2);
   return [one,two,three];
 }
-function loadVenueDay(venueId,dateStr){
-  const data = SNAPSHOT.snapshot?.[venueId]?.[dateStr];
-  if(!data) throw new Error('No snapshot');
-  return data;
+async function loadVenueDay(venueId,dateStr){
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(), 9000);
+  try{
+    const r = await fetch('/api/availability?venueId='+encodeURIComponent(venueId)+'&date='+encodeURIComponent(dateStr), { signal: controller.signal });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 function normalizeVenue(p){
   return (p?.venueDetails||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0)).map(c=>({
